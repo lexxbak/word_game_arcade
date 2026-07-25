@@ -1,0 +1,275 @@
+#include <stdio.h>
+#include <stdlib.h>
+#include <string.h>
+#include <time.h>
+
+void drawHangman(int tries)
+{
+    printf("\n");
+    switch (tries) {
+        case 0:
+            printf("  +---+\n");
+            printf("  |   |\n");
+            printf("      |\n");
+            printf("      |\n");
+            printf("      |\n");
+            printf("      |\n");
+            break;
+        case 1:
+            printf("  +---+\n");
+            printf("  |   |\n");
+            printf("  O   |\n");
+            printf("      |\n");
+            printf("      |\n");
+            printf("      |\n");
+            break;
+        case 2:
+            printf("  +---+\n");
+            printf("  |   |\n");
+            printf("  O   |\n");
+            printf("  |   |\n");
+            printf("      |\n");
+            printf("      |\n");
+            break;
+        case 3:
+            printf("  +---+\n");
+            printf("  |   |\n");
+            printf("  O   |\n");
+            printf(" /|   |\n");
+            printf("      |\n");
+            printf("      |\n");
+            break;
+        case 4:
+            printf("  +---+\n");
+            printf("  |   |\n");
+            printf("  O   |\n");
+            printf(" /|\\  |\n");
+            printf("      |\n");
+            printf("      |\n");
+            break;
+        case 5:
+            printf("  +---+\n");
+            printf("  |   |\n");
+            printf("  O   |\n");
+            printf(" /|\\  |\n");
+            printf(" /    |\n");
+            printf("      |\n");
+            break;
+        case 6:
+            printf("  +---+\n");
+            printf("  |   |\n");
+            printf("  O   |\n");
+            printf(" /|\\  |\n");
+            printf(" / \\  |\n");
+            printf("      |\n");
+            break;
+    }
+    printf("\n");
+}
+
+void hangman()
+{
+    char words[][6] = {"APPLE","PIZZA","TREAT","MANGO","QUICK","DRINK","WATER","ALTER","HOUSE","DRESS", "MADAM","WORLD","HELLO","CLOSE","RAHUL"};
+    int total = 15;
+
+    srand(time(NULL));
+    char answer[6];
+    strcpy(answer, words[rand() % total]);
+
+    printf("------ HANGMAN GAME ------\n");
+    printf("Guess the word OR kill the man!\n");
+
+    char rules;
+    printf("Do you know how to play? (y/n): ");
+    scanf(" %c", &rules);
+
+    if (rules == 'n') {
+        printf("\n------ RULES ------\n");
+        printf("1. System picks a 5-letter word.\n");
+        printf("2. Guess letters one at a time.\n");
+        printf("3. 6 wrong guesses and you lose.\n");
+        printf("4. Reveal all letters and you win.\n\n");
+    }
+
+    char guessed[6] = "_____";
+    int wrong = 0;
+    char usedLetters[26] = "";
+    int usedCount = 0;
+
+    while (wrong < 6)
+    {
+        drawHangman(wrong);
+        printf("Word: %s\n", guessed);
+        printf("Wrong guesses: %d / 6\n", wrong);
+        printf("Used letters: %s\n", usedLetters);
+
+        char guess;
+        printf("Enter a letter: ");
+        scanf(" %c", &guess);
+
+        if (guess >= 'a' && guess <= 'z')
+            guess -= 32;
+
+        // Check repeated
+        int repeat = 0;
+        for (int i = 0; i < usedCount; i++)
+            if (usedLetters[i] == guess) repeat = 1;
+
+        if (repeat) {
+            printf("You already guessed that letter!\n");
+            continue;
+        }
+
+        usedLetters[usedCount++] = guess;
+        usedLetters[usedCount] = '\0';
+
+        int found = 0;
+        for (int i = 0; i < 5; i++)
+            if (answer[i] == guess) {
+                guessed[i] = guess;
+                found = 1;
+            }
+
+        if (!found) wrong++;
+
+        if (strcmp(guessed, answer) == 0) {
+            drawHangman(wrong);
+            printf("🎉 YOU SAVED THE MAN! The word was %s\n", answer);
+            return;
+        }
+    }
+
+    drawHangman(wrong);
+    printf("❌ YOU KILLED THE MAN! The word was %s\n", answer);
+}
+
+void wordle()
+{
+    char words[][6] = {"APPLE","PIZZA","TREAT","MANGO","QUICK","DRINK","WATER","ALTER","HOUSE","DRESS","MADAM","WORLD","HELLO","CLOSE","RAHUL"};
+    int total = 15;
+
+    srand(time(NULL));
+    char answer[6];
+    strcpy(answer, words[rand() % total]);
+
+    char rules;
+    printf("------ WORDLE GAME ------\n");
+    printf("Do you know how to play Wordle? (y/n): ");
+    scanf(" %c", &rules);
+
+    if (rules == 'n') {
+        printf("\n------ RULES ------\n");
+        printf("🟩 Correct & correct place\n");
+        printf("🟨 Exists but wrong place\n");
+        printf("⬛ Not in word\n");
+        printf("5 attempts only.\n\n");
+    }
+
+    char guess[20];
+
+    for (int attempt = 1; attempt <= 5; attempt++)
+    {
+        printf("Attempt %d: ", attempt);
+        scanf("%s", guess);
+
+        if (strlen(guess) != 5) {
+            printf("Enter a 5-letter word!\n");
+            attempt--;
+            continue;
+        }
+
+        for (int i = 0; i < 5; i++)
+            if (guess[i] >= 'a' && guess[i] <= 'z')
+                guess[i] -= 32;
+
+        int correct = 1;
+        printf("Result: ");
+
+        for (int i = 0; i < 5; i++)
+        {
+            if (guess[i] == answer[i])
+                printf("🟩");
+            else {
+                int found = 0;
+                for (int j = 0; j < 5; j++)
+                    if (guess[i] == answer[j])
+                        found = 1;
+
+                if (found) printf("🟨");
+                else printf("⬛");
+
+                correct = 0;
+            }
+        }
+
+        printf("\n");
+
+        if (correct) {
+            printf("🎉 YOU GUESSED IT! The word was %s.\n", answer);
+            return;
+        }
+
+        printf("\n");
+    }
+
+    printf("❌ OUT OF ATTEMPTS! The word was %s.\n", answer);
+}
+
+void mainMenu()
+{
+    printf("\n\n");
+    printf("===============================================\n");
+    printf("            __        __   ____   ___  \n");
+    printf("           |  \\      /  | |  _ \\ / _ \\ \n");
+    printf("           | |\\\\    //| | | |_) | | | |\n");
+    printf("           | | \\\\  // | | |  _ <| | | |\n");
+    printf("           | |  \\\\//  | | | |_) | |_| |\n");
+    printf("           |_|   \\/   |_| |____/ \\___/ \n");
+    printf("\n");
+
+    printf("           ★ W 0 R D   G A M 3 S ★\n");
+    printf("===============================================\n");
+    printf("      🧩 Welcome to the Word Game Arcade! 🧩\n");
+    printf("===============================================\n\n");
+    printf("< Developed by Rishil Chudasama and Rahul Sanklecha />\n\n");
+    printf("Choose your game:\n");
+    printf("  1️⃣  Wordle\n");
+    printf("  2️⃣  Hangman\n");
+    printf("  3️⃣  Exit\n\n");
+
+    printf("Enter your choice → ");
+}
+
+int main()
+{
+    int choice;
+
+    while (1) {
+        mainMenu();
+        scanf("%d", &choice);
+
+        switch (choice)
+        {
+            case 1:
+                wordle();
+                break;
+
+            case 2:
+                hangman();
+                break;
+
+            case 3:
+                printf("\nThanks for playing W0RD GAM3S! Goodbye!\n");
+                return 0;
+
+            default:
+                printf("⚠ Invalid choice! Try again.\n");
+        }
+
+        printf("\nPress Enter to return to menu...");
+        getchar();
+        getchar();
+    }
+
+    return 0;
+}
